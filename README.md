@@ -58,6 +58,7 @@ is spoken.
 | [`yomiscript`](packages/cli/) | The CLI: `yomiscript speak "ja /ame<t:雨> desɯ<t:です。> ↘/"` |
 | [`@yomiscript/mcp`](packages/mcp/) | An MCP server with one tool, `speak` |
 | [`@yomiscript/gui-chat-plugin`](packages/gui-chat-plugin/) | A [GUI Chat Protocol](https://github.com/receptron/gui-chat-protocol) plugin that speaks in the browser and highlights the word being spoken |
+| [`browser-extension`](packages/browser-extension/) | A Chromium extension (not on npm) that reads the open page or the selected text aloud: Claude writes the YomiScript of each sentence, Kokoro speaks it in the browser |
 
 The browser demo [`demo/ys_web/`](demo/ys_web/) plays YomiScript entirely in the browser (it also has the ONNX
 export of Kokoro).

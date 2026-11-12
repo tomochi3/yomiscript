@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YomiScript Reader</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fff;
+        --fg: #1d1d1f;
+        --muted: #6e6e73;
+        --line: #d9d9de;
+        --accent: #2f6fde;
+        --now: #fff3c4;
+        --skip: #b3261e;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #1c1c1e;
+          --fg: #f2f2f7;
+          --muted: #a1a1a6;
+          --line: #3a3a3c;
+          --accent: #6ea0ff;
+          --now: #4a3f12;
+          --skip: #ff8a80;
+        }
+      }
+      body {
+        margin: 0;
+        padding: 12px;
+        font:
+          14px/1.6 system-ui,
+          sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      .bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      button {
+        font: inherit;
+        padding: 4px 10px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+      }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      #status {
+        min-height: 1.6em;
+        margin: 8px 0;
+        color: var(--muted);
+        overflow-wrap: anywhere;
+      }
+      #status.error {
+        color: var(--skip);
+      }
+      #title {
+        font-weight: 600;
+        margin: 4px 0;
+      }
+      #sentences p {
+        margin: 0;
+        padding: 2px 4px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      #sentences p:hover {
+        outline: 1px solid var(--line);
+      }
+      #sentences p.speaking {
+        background: var(--now);
+      }
+      #sentences p.writing {
+        color: var(--muted);
+      }
+      #sentences p.skipped {
+        text-decoration: line-through;
+        color: var(--skip);
+      }
+      details {
+        margin: 8px 0;
+        border-top: 1px solid var(--line);
+        padding-top: 6px;
+      }
+      label {
+        display: block;
+        margin: 6px 0;
+      }
+      input,
+      select {
+        font: inherit;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 3px 6px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: transparent;
+        color: inherit;
+      }
+      .note {
+        color: var(--muted);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <button id="read-page" class="primary">Read page</button>
+      <button id="read-selection">Read selection</button>
+      <button id="toggle" disabled>Stop</button>
+    </div>
+    <div id="status">Ready.</div>
+    <details id="settings">
+      <summary>Settings</summary>
+      <label>Anthropic API key <input id="api-key" type="password" autocomplete="off" placeholder="sk-ant-..." /></label>
+      <label
+        >Model (writes the reading)
+        <select id="model"></select
+      ></label>
+      <label
+        >Effort
+        <select id="effort">
+          <option value="low">low (faster)</option>
+          <option value="medium">medium</option>
+          <option value="high">high</option>
+        </select>
+      </label>
+      <button id="save">Save</button>
+      <p class="note">
+        The key is kept in this browser only and sent only to api.anthropic.com. The page text is sent there too, so that the model can write how each sentence
+        is read. The voice runs on this computer (Kokoro-82M); its models (about 200 MB) are downloaded from Hugging Face once.
+      </p>
+    </details>
+    <div id="title"></div>
+    <div id="sentences"></div>
+    <script type="module" src="./src/sidepanel.ts"></script>
+  </body>
+</html>
