@@ -70,6 +70,9 @@ export function callAsync(llm, p) {
       err = "";
     c.stdout.on("data", (d) => (out += d));
     c.stderr.on("data", (d) => (err += d));
+    // a program that cannot be started (not on PATH) is reported in stderr, like one that fails; "close" still follows
+    c.on("error", (e) => (err += String(e)));
+    c.stdin.on("error", () => {}); // its stdin is closed when it did not start
     c.on("close", () => resolve(finish(cwd, t0, read(out, err))));
     c.stdin.end(input);
   });

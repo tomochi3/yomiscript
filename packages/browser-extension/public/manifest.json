@@ -4,13 +4,42 @@
   "version": "0.1.0",
   "description": "Reads the page or the selected text aloud: an LLM writes how every word is read (YomiScript), Kokoro speaks it in the browser.",
   "minimum_chrome_version": "116",
-  "action": { "default_title": "YomiScript Reader" },
-  "side_panel": { "default_path": "sidepanel.html" },
-  "background": { "service_worker": "background.js", "type": "module" },
-  "permissions": ["activeTab", "contextMenus", "scripting", "sidePanel", "storage"],
-  "host_permissions": ["https://api.anthropic.com/*", "https://huggingface.co/*", "https://*.huggingface.co/*", "https://*.hf.co/*"],
-  "optional_host_permissions": ["<all_urls>"],
-  "content_security_policy": { "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'" },
-  "cross_origin_embedder_policy": { "value": "require-corp" },
-  "cross_origin_opener_policy": { "value": "same-origin" }
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAimrA4qWkn4UWD/9UYoiHns0dUHu4DBCvIKzoUHqEW6IWHbZGgL5Z8Vg8iFJyPkKxf65sMMNVDxzUxMZTkWL6/vU3JjpOoNe06GMSYqDkUw3MRRGM9sJuxt4LQPjS17pUNY2g2bS//XPrxQcHMmW4kNrI2P/TZbRMaEPLUbgXQBFF3lJHkNAW8WlyS73jYdfYCylOhVO3W8MQ9gUWa2d5Vhan3pOWRivfPt5N6H8NQF4tM2Jj+UOiBtAoDaIxTIYOEvPtVJSdu6XebYdFvJ/m/NRWgXdLAzp+KceZKjhE126JeQ5SHqye2dy6yZ2irDxbvyo99wX61YryWsCPFY6rkQIDAQAB",
+  "action": {
+    "default_title": "YomiScript Reader"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "nativeMessaging",
+    "scripting",
+    "sidePanel",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.anthropic.com/*",
+    "https://api.openai.com/*",
+    "https://huggingface.co/*",
+    "https://*.huggingface.co/*",
+    "https://*.hf.co/*"
+  ],
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "cross_origin_embedder_policy": {
+    "value": "require-corp"
+  },
+  "cross_origin_opener_policy": {
+    "value": "same-origin"
+  }
 }

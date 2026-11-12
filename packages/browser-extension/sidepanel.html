@@ -110,6 +110,9 @@
         background: transparent;
         color: inherit;
       }
+      .fields[hidden] {
+        display: none;
+      }
       .note {
         color: var(--muted);
         font-size: 12px;
@@ -125,23 +128,46 @@
     <div id="status">Ready.</div>
     <details id="settings">
       <summary>Settings</summary>
-      <label>Anthropic API key <input id="api-key" type="password" autocomplete="off" placeholder="sk-ant-..." /></label>
       <label
-        >Model (writes the reading)
-        <select id="model"></select
-      ></label>
-      <label
-        >Effort
-        <select id="effort">
-          <option value="low">low (faster)</option>
-          <option value="medium">medium</option>
-          <option value="high">high</option>
-        </select>
+        >The reading is written by
+        <select id="provider"></select>
       </label>
+      <div id="anthropic-fields" class="fields">
+        <label>Anthropic API key <input id="anthropic-key" type="password" autocomplete="off" placeholder="sk-ant-..." /></label>
+        <label
+          >Model
+          <select id="anthropic-model"></select>
+        </label>
+      </div>
+      <div id="openai-fields" class="fields">
+        <label>OpenAI API key <input id="openai-key" type="password" autocomplete="off" placeholder="sk-..." /></label>
+        <label
+          >Model
+          <select id="openai-model"></select>
+        </label>
+        <button id="load-models">Load models</button>
+      </div>
+      <div id="effort-fields" class="fields">
+        <label
+          >Effort
+          <select id="effort">
+            <option value="low">low (faster)</option>
+            <option value="medium">medium</option>
+            <option value="high">high</option>
+          </select>
+        </label>
+      </div>
+      <div id="local-fields" class="fields">
+        <p class="note">
+          Uses the <span id="local-cli"></span> command on this computer and the plan it is signed in with: no API key. Install the helper once, from the
+          repository: <code>node packages/browser-extension/host/install.mjs</code> (macOS, Linux). Each batch of sentences starts the command, so the speech
+          starts later than with an API.
+        </p>
+      </div>
       <button id="save">Save</button>
       <p class="note">
-        The key is kept in this browser only and sent only to api.anthropic.com. The page text is sent there too, so that the model can write how each sentence
-        is read. The voice runs on this computer (Kokoro-82M); its models (about 200 MB) are downloaded from Hugging Face once.
+        A key is kept in this browser only and sent only to its API. The page text is sent to the LLM chosen above, so that it can write how each sentence is
+        read. The voice runs on this computer (Kokoro-82M); its models (about 200 MB) are downloaded from Hugging Face once.
       </p>
     </details>
     <div id="title"></div>

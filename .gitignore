@@ -50,3 +50,5 @@ eval/ipa_value/audio/
 eval/announce_minutes/audio/
 # eval/ja_geminate blind test audio (listen.mjs)
 eval/ja_geminate/audio/
+# the browser extension's native host launcher, written by host/install.mjs for this computer
+packages/browser-extension/host/run.sh

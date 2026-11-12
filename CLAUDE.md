@@ -87,7 +87,7 @@ entries). Comments, docstrings and messages (print, help, errors) are in English
   (`plan.md`: TypeScript on npm, no Python in what ships, D24).
 - `packages/`: what ships on npm (D24): `core` (YomiScript), `kokoro`, `supertonic`, `ja-accent` (the Japanese
   dictionary accent, D25; its WebAssembly is built from Rust in `wasm/`, the build kept in `wasm/pkg/`), `cli`, `mcp`,
-  `gui-chat-plugin`, and `browser-extension` (private, not on npm: reads a web page aloud, Claude as the Yomite).
+  `gui-chat-plugin`, and `browser-extension` (private, not on npm: reads a web page aloud, an LLM as the Yomite; its native messaging host in `host/`).
 - `demo/ys_web/`: the browser demo (`web/`, using the built packages). It also has the ONNX export
   (`export_split.py`, `exact_stft.py`).
 - `yomite/`: the Kokoro-based Yomites (`en_kokoro`, `ja_kokoro`), used for the parity checks.

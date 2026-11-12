@@ -4,10 +4,12 @@
 import { Reader, type SentenceState } from "./reader.ts";
 import { isFresh, REQUEST_KEY, type ReadRequest } from "./request.ts";
 import { splitSentences } from "./sentences.ts";
-import { loadSettings, saveSettings } from "./settings.ts";
+import { llmFor } from "./llms.ts";
+import { loadSettings, missing, type Settings } from "./settings.ts";
+import { openSettings, showSettings, wireSettings } from "./settings_ui.ts";
 import { setUpSpeech, speechDeps, warmUp } from "./speech.ts";
 import { activeTab, pageText } from "./tab.ts";
-import { anthropicClient, MODELS, writeYomiScript, type YomiteSettings } from "./yomite.ts";
+import { writeYomiScript } from "./yomite.ts";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const ui = {
@@ -15,11 +17,6 @@ const ui = {
   readSelection: $<HTMLButtonElement>("read-selection"),
   toggle: $<HTMLButtonElement>("toggle"),
   status: $<HTMLDivElement>("status"),
-  settings: $<HTMLDetailsElement>("settings"),
-  apiKey: $<HTMLInputElement>("api-key"),
-  model: $<HTMLSelectElement>("model"),
-  effort: $<HTMLSelectElement>("effort"),
-  save: $<HTMLButtonElement>("save"),
   title: $<HTMLDivElement>("title"),
   sentences: $<HTMLDivElement>("sentences"),
 };
@@ -54,18 +51,19 @@ function showText(title: string, sentences: string[]): void {
   );
 }
 
-async function settingsWithKey(): Promise<YomiteSettings | null> {
+/** the settings, or null (and the settings opened) when the chosen provider is not ready */
+async function readySettings(): Promise<Settings | null> {
   const s = await loadSettings();
-  if (s.apiKey) return s;
-  ui.settings.open = true;
-  ui.apiKey.focus();
-  status("Enter your Anthropic API key in the settings first.", true);
+  const why = missing(s);
+  if (!why) return s;
+  openSettings();
+  status(why, true);
   return null;
 }
 
 /** reads a text: cut into sentences, shown, and read from the first */
 async function read(title: string, text: string): Promise<void> {
-  const settings = await settingsWithKey();
+  const settings = await readySettings();
   if (!settings) return;
   const sentences = splitSentences(text);
   if (!sentences.length) {
@@ -76,10 +74,10 @@ async function read(title: string, text: string): Promise<void> {
   showText(title, sentences);
   // the voice loads (downloads, the first time) while the first sentences are being written
   warmUp().catch(() => undefined); // a failure is reported by the reader, at the sentence it stops at
-  const client = anthropicClient(settings.apiKey);
+  const llm = llmFor(settings);
   reader = new Reader(
     sentences,
-    { write: (batch) => writeYomiScript(client, settings, title, batch), ...speechDeps },
+    { write: (batch) => writeYomiScript(llm, title, batch), ...speechDeps },
     {
       sentence: (i, state, ys) => {
         showSentence(i, state, ys);
@@ -127,15 +125,6 @@ async function handleRequest(r: unknown): Promise<void> {
   await readTab(q.kind, q.kind === "selection" ? q.selectionText : "", q.tabId);
 }
 
-async function showSettings(): Promise<void> {
-  ui.model.replaceChildren(...MODELS.map((m) => new Option(m, m)));
-  const s = await loadSettings();
-  ui.apiKey.value = s.apiKey;
-  ui.model.value = s.model;
-  ui.effort.value = s.effort;
-  if (!s.apiKey) ui.settings.open = true;
-}
-
 function wire(): void {
   ui.readPage.addEventListener("click", () => void readTab("page"));
   ui.readSelection.addEventListener("click", () => void readTab("selection"));
@@ -145,12 +134,7 @@ function wire(): void {
     else void reader.start(reader.index).finally(updateToggle);
     updateToggle();
   });
-  ui.save.addEventListener("click", () => {
-    void saveSettings({ apiKey: ui.apiKey.value, model: ui.model.value, effort: ui.effort.value as YomiteSettings["effort"] }).then(() => {
-      ui.settings.open = false;
-      status("Settings saved.");
-    });
-  });
+  wireSettings(status);
   chrome.storage.session.onChanged.addListener((changes) => {
     if (REQUEST_KEY in changes) void handleRequest(changes[REQUEST_KEY].newValue);
   });
@@ -159,7 +143,7 @@ function wire(): void {
 async function main(): Promise<void> {
   setUpSpeech();
   wire();
-  await showSettings();
+  await showSettings((s) => missing(s) !== null);
   const pending = await chrome.storage.session.get(REQUEST_KEY);
   await handleRequest(pending[REQUEST_KEY]);
 }
