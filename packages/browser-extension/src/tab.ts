@@ -1,5 +1,5 @@
-// Reading the text of a tab. The extension asks for no website access at install: the toolbar button and the context
-// menu grant it for the tab they are used on (activeTab); for any other tab the panel asks for the site's access once.
+// Reading the text of a tab. The extension asks for no website access at install: the context menu grants it for the
+// tab it is used on (activeTab); the panel's buttons ask for website access once (askSiteAccess).
 import { extractPageText, type PageText } from "./page_text.ts";
 
 export async function activeTab(): Promise<chrome.tabs.Tab> {
@@ -14,27 +14,26 @@ async function run(tabId: number): Promise<PageText> {
   return r.result;
 }
 
-/** the site's access, asked for when the extension does not have it yet (needs the click that led here) */
-async function askAccess(tab: chrome.tabs.Tab): Promise<boolean> {
-  let origin: string;
+/** website access, asked for once: the panel's buttons read whichever tab is open, and Chrome tells an extension
+ * a tab's address only once it has access to it, so access is asked for all sites (an optional permission, not asked
+ * at install). Called first thing in a click, so that the click still counts as the user gesture Chrome requires. */
+export async function askSiteAccess(): Promise<boolean> {
   try {
-    origin = new URL(tab.url ?? "").origin;
+    return await chrome.permissions.request({ origins: ["<all_urls>"] });
   } catch {
     return false;
   }
-  if (!/^https?:/.test(origin)) return false;
-  const origins = [`${origin}/*`];
-  if (await chrome.permissions.contains({ origins })) return false; // it has access, so the failure is something else
-  return chrome.permissions.request({ origins });
 }
 
 /** the text of a tab; throws with the reason when the page cannot be read (a browser page, the web store, no access) */
 export async function pageText(tab: chrome.tabs.Tab): Promise<PageText> {
-  const tabId = tab.id as number;
   try {
-    return await run(tabId);
+    return await run(tab.id as number);
   } catch (e) {
-    if (await askAccess(tab)) return run(tabId);
-    throw new Error(`cannot read this page: ${e instanceof Error ? e.message : String(e)}`, { cause: e });
+    const why = e instanceof Error ? e.message : String(e);
+    const hint = /permission|Cannot access/i.test(why)
+      ? " (Chrome's own pages and the Web Store cannot be read; on other sites, allow website access when asked)"
+      : "";
+    throw new Error(`cannot read this page: ${why}${hint}`, { cause: e });
   }
 }

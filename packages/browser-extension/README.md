@@ -52,8 +52,10 @@ What leaves the browser: the sentences being read and the page's title go to the
 the accent dictionary (28 MB) and the pitch model (8 MB) are downloaded from Hugging Face the first time and kept in
 the Cache API.
 
-Permissions: `activeTab` and `scripting` read the tab the toolbar button or the context menu was used on; for another
-tab the panel asks for that site's access once (`optional_host_permissions`). The host permissions are the two APIs and
+Permissions: the context menu reads the tab it is used on (`activeTab`, `scripting`). The panel's **Read page** /
+**Read selection** buttons ask once for website access (all sites, an optional permission: Chrome tells an extension
+a tab's address only once it has access, so it cannot ask for one site); Chrome's own pages and the Web Store cannot be
+read. The host permissions are the two APIs and
 Hugging Face only; `nativeMessaging` reaches the helper. The panel is cross-origin isolated (COOP / COEP in the manifest), so onnxruntime runs on up to 4
 threads.
 

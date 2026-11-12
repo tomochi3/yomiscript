@@ -8,7 +8,7 @@ import { llmFor } from "./llms.ts";
 import { loadSettings, missing, type Settings } from "./settings.ts";
 import { openSettings, showSettings, wireSettings } from "./settings_ui.ts";
 import { setUpSpeech, speechDeps, warmUp } from "./speech.ts";
-import { activeTab, pageText } from "./tab.ts";
+import { activeTab, askSiteAccess, pageText } from "./tab.ts";
 import { writeYomiScript } from "./yomite.ts";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -118,6 +118,12 @@ async function readTab(kind: "page" | "selection", fallback = "", tabId?: number
   }
 }
 
+/** a panel button: website access first (nothing awaited before it, so the click is still the gesture), then the tab */
+async function readWithAccess(kind: "page" | "selection"): Promise<void> {
+  if (await askSiteAccess()) return readTab(kind);
+  status("Reading needs website access: press the button again and allow it.", true);
+}
+
 async function handleRequest(r: unknown): Promise<void> {
   if (!isFresh(r)) return;
   await chrome.storage.session.remove(REQUEST_KEY);
@@ -126,8 +132,8 @@ async function handleRequest(r: unknown): Promise<void> {
 }
 
 function wire(): void {
-  ui.readPage.addEventListener("click", () => void readTab("page"));
-  ui.readSelection.addEventListener("click", () => void readTab("selection"));
+  ui.readPage.addEventListener("click", () => void readWithAccess("page"));
+  ui.readSelection.addEventListener("click", () => void readWithAccess("selection"));
   ui.toggle.addEventListener("click", () => {
     if (!reader) return;
     if (reader.reading) reader.stop();
