@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["chrome", "node"],
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "sourceMap": false,
+    "allowJs": true
+  },
+  "include": ["src", "test", "vite.config.ts"]
+}

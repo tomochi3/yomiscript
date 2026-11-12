@@ -13,8 +13,8 @@
     "release": "sh tools/publish.sh",
     "test": "vitest run",
     "build:packages": "tsc -b packages/core packages/kokoro packages/supertonic packages/ja-accent packages/cli packages/mcp",
-    "build": "yarn -s build:packages && yarn workspace @yomiscript/gui-chat-plugin build",
-    "typecheck": "yarn -s build:packages && tsc -b packages/core/test packages/supertonic/test packages/ja-accent/test packages/cli/test packages/mcp/test packages/supertonic/tools && yarn workspace @yomiscript/gui-chat-plugin typecheck"
+    "build": "yarn -s build:packages && yarn workspace @yomiscript/gui-chat-plugin build && yarn workspace @yomiscript/browser-extension build",
+    "typecheck": "yarn -s build:packages && tsc -b packages/core/test packages/supertonic/test packages/ja-accent/test packages/cli/test packages/mcp/test packages/supertonic/tools && yarn workspace @yomiscript/gui-chat-plugin typecheck && yarn workspace @yomiscript/browser-extension typecheck"
   },
   "dependencies": {
     "onnxruntime-web": "1.31.1"

@@ -27,6 +27,8 @@ configureSpeaker({
   // executionProviders: ["webgpu", "wasm"],
   // accentBase: null, // no Japanese dictionary accent; default: the dictionary on Hugging Face (DICT_URL)
   // pitchBase: null, // the dictionary accent's Japanese values; default: the predicted pitch (D33), its model on Hugging Face (PITCH_URL)
+  // loader: (base) => (path) => …, // how a file is loaded (Uint8Array); default: a plain fetch. The browser extension keeps them in the Cache API
+  // numThreads: 4, // onnxruntime's WASM threads; default 1, which needs no cross-origin isolation
 });
 ```
 

@@ -19,7 +19,14 @@ export interface SpeakerOptions {
   /** URL of the Japanese pitch model (D33, <file>.gz; Hugging Face by default, about 8 MB the first time Japanese is
    * spoken); null: the dictionary accent's values. Needs accentBase; if it cannot be loaded, the dictionary accent is used */
   pitchBase?: string | null;
+  /** how a file under one of the bases is loaded (models, voices, dictionary, pitch model); unset: a plain fetch.
+   * A host that keeps the downloads (the Cache API) passes its own */
+  loader?: (base: URL) => Loader;
+  /** onnxruntime's WASM threads; unset: 1, which needs no cross-origin isolation */
+  numThreads?: number;
 }
+/** a file's bytes, by its path under a base */
+export type Loader = (path: string) => Promise<Uint8Array>;
 let options: SpeakerOptions = { modelBase: "/kokoro/", accentBase: DICT_URL, pitchBase: PITCH_URL };
 let katarite: Promise<Katarite> | null = null;
 const cache = new Map<string, Promise<Speech>>();
@@ -33,8 +40,8 @@ export function speakerOptions(): Readonly<SpeakerOptions> {
   return options;
 }
 const absolute = (base: string): URL => new URL(base.endsWith("/") ? base : base + "/", globalThis.location?.href ?? "http://localhost/");
-const fetcher =
-  (base: URL) =>
+const plainFetcher =
+  (base: URL): Loader =>
   async (p: string): Promise<Uint8Array> => {
     const r = await fetch(new URL(p, base));
     if (!r.ok) throw new Error(`cannot load ${p}: HTTP ${r.status}`);
@@ -45,7 +52,8 @@ const fetcher =
 export function loadKatarite(): Promise<Katarite> {
   katarite ??= (async () => {
     if (options.ortWasmBase) ort.env.wasm.wasmPaths = absolute(options.ortWasmBase).href;
-    ort.env.wasm.numThreads = 1; // no cross-origin isolation needed
+    ort.env.wasm.numThreads = options.numThreads ?? 1; // 1: no cross-origin isolation needed
+    const fetcher = options.loader ?? plainFetcher;
     const load = fetcher(absolute(options.modelBase));
     const engine = await new Engine(ort, load).init({ suffix: W16, executionProviders: options.executionProviders ?? ["wasm"] });
     const k = new KokoroKatarite(engine),

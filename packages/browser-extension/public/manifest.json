@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "YomiScript Reader",
+  "version": "0.1.0",
+  "description": "Reads the page or the selected text aloud: an LLM writes how every word is read (YomiScript), Kokoro speaks it in the browser.",
+  "minimum_chrome_version": "116",
+  "action": { "default_title": "YomiScript Reader" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["activeTab", "contextMenus", "scripting", "sidePanel", "storage"],
+  "host_permissions": ["https://api.anthropic.com/*", "https://huggingface.co/*", "https://*.huggingface.co/*", "https://*.hf.co/*"],
+  "optional_host_permissions": ["<all_urls>"],
+  "content_security_policy": { "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'" },
+  "cross_origin_embedder_policy": { "value": "require-corp" },
+  "cross_origin_opener_policy": { "value": "same-origin" }
+}
