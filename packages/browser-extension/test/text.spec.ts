@@ -2,8 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { isFresh, REQUEST_TTL_MS } from "../src/request.ts";
 import { batchEnd, cutLong, splitSentences } from "../src/sentences.ts";
-import { normalize } from "../src/settings.ts";
-import { DEFAULT_SETTINGS } from "../src/yomite.ts";
+import { DEFAULT_SETTINGS, missing, normalize } from "../src/settings.ts";
 
 describe("sentences", () => {
   it("cuts paragraphs into sentences and drops the silent ones", () => {
@@ -39,11 +38,22 @@ describe("batches", () => {
 
 describe("settings", () => {
   it("falls back to the defaults for unknown values", () => {
-    expect(normalize({ apiKey: " k ", model: "gpt-x", effort: "max" })).toEqual({ ...DEFAULT_SETTINGS, apiKey: "k" });
-    expect(normalize(undefined)).toEqual({ ...DEFAULT_SETTINGS, apiKey: "" });
+    expect(normalize({ provider: "x", anthropicKey: " k ", anthropicModel: "gpt-x", effort: "max" })).toEqual({ ...DEFAULT_SETTINGS, anthropicKey: "k" });
+    expect(normalize(undefined)).toEqual(DEFAULT_SETTINGS);
   });
-  it("keeps a known model and effort", () => {
-    expect(normalize({ apiKey: "k", model: "claude-haiku-5-5", effort: "high" })).toEqual({ apiKey: "k", model: "claude-haiku-5-5", effort: "high" });
+  it("takes the first version's key and model as the Claude API's", () => {
+    expect(normalize({ apiKey: "k", model: "claude-haiku-5-5", effort: "high" })).toMatchObject({
+      provider: "anthropic",
+      anthropicKey: "k",
+      anthropicModel: "claude-haiku-5-5",
+      effort: "high",
+    });
+  });
+  it("says what a provider still needs", () => {
+    expect(missing(DEFAULT_SETTINGS)).toMatch(/Anthropic API key/);
+    expect(missing({ ...DEFAULT_SETTINGS, provider: "openai", openaiKey: "k" })).toMatch(/OpenAI model/);
+    expect(missing({ ...DEFAULT_SETTINGS, provider: "openai", openaiKey: "k", openaiModel: "m" })).toBeNull();
+    expect(missing({ ...DEFAULT_SETTINGS, provider: "claude-code" })).toBeNull();
   });
 });
 

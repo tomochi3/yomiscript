@@ -8,7 +8,8 @@
     "noEmit": true,
     "declaration": false,
     "sourceMap": false,
-    "allowJs": true
+    "allowJs": true,
+    "resolveJsonModule": true
   },
-  "include": ["src", "test", "vite.config.ts"]
+  "include": ["src", "test", "host", "vite.config.ts"]
 }
