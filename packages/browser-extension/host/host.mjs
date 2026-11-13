@@ -1,14 +1,18 @@
 // What the native messaging host of the extension answers (main.mjs runs it): Chrome starts it for one message, { cli, prompt }, and it answers with
 // { text } (the CLI's answer) or { error }. The CLI is the user's own Claude Code (`claude -p`) or Codex (`codex exec`),
-// signed in with their subscription; how each is called is eval/llm_yomite/llm.mjs, the repository's one definition.
+// signed in with their subscription; how each is called is eval/llm_yomite/llm.mjs, the repository's one definition,
+// in its locked form: a page can hold instructions, so the CLI is started with no tools, no MCP servers and none of the
+// user's settings, and can only answer with text.
 // Installed with install.mjs, which also gives it the PATH of the shell it was installed from (Chrome starts hosts
 // with a minimal PATH, where neither CLI nor node would be found).
 import { callAsync } from "../../../eval/llm_yomite/llm.mjs";
 
 const CLIS = new Set(["claude", "codex"]);
+// the text is a web page's: the CLI gets no tools, MCP servers or user settings (llm.mjs, { locked: true })
+const lockedCall = (cli, prompt) => callAsync(cli, prompt, { locked: true });
 
 /** the answer to one message */
-export async function answer(message, call = callAsync) {
+export async function answer(message, call = lockedCall) {
   const { cli, prompt } = message ?? {};
   if (!CLIS.has(cli)) return { error: `unknown CLI: ${String(cli)}` };
   if (typeof prompt !== "string" || !prompt) return { error: "no prompt" };

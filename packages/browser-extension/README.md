@@ -44,8 +44,12 @@ It writes `host/run.sh` (this `node`, `host/main.mjs`, and this terminal's `PATH
 minimal one) and registers the host for every Chromium browser it finds. Restart the browser afterwards. The
 extension's ID is fixed by the `key` in its manifest, so the registration fits every unpacked copy. Run it again after
 moving the repository or changing node; `--uninstall` removes it. The host runs the CLI as
-`eval/llm_yomite/llm.mjs` does for the experiments (`claude -p`, `codex exec` read-only, in a temporary folder, with the
-CLI's default model), and only those two. Each batch starts the CLI, so the speech starts later than with an API.
+`eval/llm_yomite/llm.mjs` does for the experiments, in its locked form, and only those two. A page can hold
+instructions aimed at the LLM, so the CLI starts with no tools at all: Claude Code with `--tools ""`, no MCP servers
+(`--strict-mcp-config`), no skills or slash commands, and none of your settings (`--setting-sources ""`: your
+permission rules and hooks); Codex read-only, without your `config.toml` (its MCP servers) or rules, without web search,
+the shell, connectors, plugins, the browser and computer use. It can only answer with text, in a temporary folder,
+with the CLI's default model. Each batch starts the CLI, so the speech starts later than with an API.
 
 What leaves the browser: the sentences being read and the page's title go to the chosen LLM: `api.anthropic.com` or
 `api.openai.com` with your key (kept in the extension's local storage), or the CLI, which sends them to its own service. The voice runs locally: the Kokoro models and voices (about 165 MB),
